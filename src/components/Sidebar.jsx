@@ -1,92 +1,57 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaUsers, FaStore, FaUser, FaChevronDown, FaChevronUp, FaBars } from "react-icons/fa";
-import "../assets/css/sidebar.css"; // Archivo con estilos personalizados
+import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { menuItems } from "../data/menuItems";
 
 export default function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openMenus, setOpenMenus] = useState([]); // para controlar submenús abiertos
   const location = useLocation();
 
-  // Estado para sidebar colapsado o no
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // Estado para controlar qué menús padres están abiertos
-  const [openMenus, setOpenMenus] = useState([]);
-
-  // Menú con íconos, rutas y submenús
-  const menuItems = [
-    { id: 1, label: "Inicio", icon: FaHome, path: "/" },
-    {
-      id: 2,
-      label: "Usuarios",
-      icon: FaUsers,
-      subMenus: [
-        { id: 21, label: "Roles", path: "/roles" },
-        { id: 22, label: "Usuarios", path: "/usuarios" },
-      ],
-    },
-    { id: 3, label: "Sucursales", icon: FaStore, path: "/sucursales" },
-    { id: 4, label: "Clientes", icon: FaUser, path: "/clientes" },
-  ];
-
-  // Abrir automáticamente el menú padre si la ruta actual es un submenú
+  // Al cargar el componente o cambiar ruta, abrir automáticamente el submenú correspondiente
   useEffect(() => {
-    // Buscar qué menús padres tienen un submenú activo
-    const activeParentIds = menuItems
+    // Buscar qué menús padres tienen un submenú con la ruta actual
+    const menusToOpen = menuItems
       .filter(
         (menu) =>
           menu.subMenus &&
-          menu.subMenus.some((sm) => sm.path === location.pathname)
+          menu.subMenus.some((sub) => sub.path === location.pathname)
       )
       .map((menu) => menu.id);
 
-    setOpenMenus(activeParentIds);
+    setOpenMenus(menusToOpen);
   }, [location.pathname]);
 
   // Función para abrir/cerrar submenú
   const toggleSubMenu = (id) => {
-    if (openMenus.includes(id)) {
-      setOpenMenus(openMenus.filter((openId) => openId !== id));
-    } else {
-      setOpenMenus([...openMenus, id]);
-    }
+    setOpenMenus((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
-
-  // Toggle colapsar sidebar
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
   return (
     <div
-      className={`bg-dark text-white d-flex flex-column ${
-        isCollapsed ? "sidebar-collapsed" : ""
-      }`}
-      style={{ width: isCollapsed ? "70px" : "250px", minHeight: "100vh" }}
+      className={`bg-dark text-white min-vh-100 d-flex flex-column`}
+      style={{ width: isCollapsed ? "80px" : "250px", transition: "width 0.3s" }}
     >
-      {/* Botón para colapsar */}
-      <div className="d-flex justify-content-end p-2">
+      <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
+        {!isCollapsed && <h5>Menú</h5>}
         <button
-          onClick={toggleSidebar}
-          className="btn btn-sm btn-outline-light"
-          aria-label="Toggle sidebar"
+          className="btn btn-outline-light btn-sm"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
         >
           <FaBars />
         </button>
       </div>
 
-      {/* Título (oculto si colapsado) */}
-      {!isCollapsed && (
-        <h5 className="px-3 mb-4" style={{ userSelect: "none" }}>
-          Menú
-        </h5>
-      )}
-
-      {/* Lista de menús */}
-      <ul className="nav flex-column gap-1 px-1">
+      <ul className="nav flex-column gap-1 flex-grow-1 px-2">
         {menuItems.map(({ id, label, icon: Icon, path, subMenus }) => {
-          // Determinar si el menú padre está activo o su submenú está activo
+          // Detectar si el menú padre está activo (ruta igual o alguna ruta hija coincide)
           const isActiveParent =
             (path && location.pathname === path) ||
-            (subMenus &&
-              subMenus.some((sm) => sm.path === location.pathname));
+            (subMenus && subMenus.some((sm) => sm.path === location.pathname));
+
           const isOpen = openMenus.includes(id);
 
           return (
@@ -104,10 +69,10 @@ export default function Sidebar() {
                       <Icon />
                       {!isCollapsed && <span className="ms-2">{label}</span>}
                     </span>
-                    {!isCollapsed &&
-                      (isOpen ? <FaChevronUp /> : <FaChevronDown />)}
+                    {!isCollapsed && (isOpen ? <FaChevronUp /> : <FaChevronDown />)}
                   </button>
 
+                  {/* Submenús */}
                   {isOpen && !isCollapsed && (
                     <ul className="nav flex-column ms-4 mt-1">
                       {subMenus.map(({ id: subId, label: subLabel, path: subPath }) => {
@@ -116,9 +81,7 @@ export default function Sidebar() {
                           <li key={subId} className="nav-item">
                             <Link
                               to={subPath}
-                              className={`nav-link text-white ${
-                                isActiveSub ? "active" : ""
-                              }`}
+                              className={`nav-link text-white ${isActiveSub ? "active" : ""}`}
                             >
                               {subLabel}
                             </Link>
