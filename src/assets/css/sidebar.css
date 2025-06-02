@@ -1,0 +1,22 @@
+/* Resalta el menú activo */
+.nav-link.active,
+.btn-toggle.active {
+  background-color: #0d6efd; /* azul bootstrap */
+  color: white !important;
+  font-weight: 600;
+  border-radius: 0.25rem;
+}
+
+/* Para íconos activos también puedes cambiar color */
+.nav-link.active svg,
+.btn-toggle.active svg {
+  color: white;
+}
+
+/* Opcional: efecto hover */
+.nav-link:hover,
+.btn-toggle:hover {
+  background-color: #0b5ed7;
+  color: white !important;
+  cursor: pointer;
+}
