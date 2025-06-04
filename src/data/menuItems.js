@@ -13,8 +13,8 @@ export const menuItems = [
     label: "Usuarios",
     icon: FaUsers,
     subMenus: [
-      { id: 21, label: "Administrar usuarios", path: "/usuarios" },
-      { id: 22, label: "Roles", path: "/roles" },
+      { id: 21, label: "Listado usuarios", path: "/usuarios" },
+      { id: 22, label: "Roles", path: "/usuarios/roles" },
     ],
   },
   {
@@ -29,7 +29,7 @@ export const menuItems = [
     icon: FaUserFriends,
     subMenus: [
       { id: 41, label: "Listado clientes", path: "/clientes" },
-      { id: 42, label: "Clientes VIP", path: "/clientes/vip" },
+      { id: 42, label: "Pagos mensuales", path: "/clientes/pagos" },
     ],
   },
 ];

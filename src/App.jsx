@@ -2,16 +2,42 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import ListaUsuario from "./pages/usuarios/ListaUsuario";
+import Roles from "./pages/usuarios/Roles";
+import ListaClientes from "./pages/clientes/ListaClientes";
+import PagoMensualidades from "./pages/clientes/PagoMensualidades";
+import ListaSucursales from "./pages/sucurales/ListaSucursales";
+
+import Login from "./pages/Login";
+import { AuthProvider } from "./context/AuthContext";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
     <BrowserRouter>
-      <MainLayout>
+      <AuthProvider>
         <Routes>
-          <Route path="/" element={<Dashboard  />} />
-          <Route path="*" element={<NotFound />} />
+          {/* Ruta pública */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Rutas protegidas */}
+          <Route path="*" element={
+            <PrivateRoute>
+              <MainLayout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/usuarios" element={<ListaUsuario />} />
+                  <Route path="/usuarios/Roles" element={<Roles />} />
+                  <Route path="/sucursales" element={<ListaSucursales />} />
+                  <Route path="/clientes" element={<ListaClientes />} />
+                  <Route path="/clientes/pagos" element={<PagoMensualidades />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </MainLayout>
+            </PrivateRoute>
+          } />
         </Routes>
-      </MainLayout>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
