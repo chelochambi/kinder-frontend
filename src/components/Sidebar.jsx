@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { menuItems } from "../data/menuItems";
+import "../styles/Sidebar.css"; // Asegúrate de importar los estilos
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -9,7 +10,6 @@ export default function Sidebar() {
   const [hoveredMenu, setHoveredMenu] = useState(null); // para flyout
   const location = useLocation();
 
-  // Al cargar el componente o cambiar ruta, abrir automáticamente el submenú correspondiente
   useEffect(() => {
     const menusToOpen = menuItems
       .filter(
@@ -71,13 +71,13 @@ export default function Sidebar() {
                     style={{ background: "none", border: "none" }}
                   >
                     <span className="d-flex align-items-center">
-                      <Icon />
+                      <Icon size={isCollapsed ? 24 : 18} />
                       {!isCollapsed && <span className="ms-2">{label}</span>}
                     </span>
-                    {!isCollapsed && (isOpen ? <FaChevronUp /> : <FaChevronDown />)}
+                    {!isCollapsed &&
+                      (isOpen ? <FaChevronUp /> : <FaChevronDown />)}
                   </button>
 
-                  {/* Submenús normales si no está colapsado */}
                   {!isCollapsed && isOpen && (
                     <ul className="nav flex-column ms-4 mt-1">
                       {subMenus.map(({ id: subId, label: subLabel, path: subPath }) => {
@@ -98,10 +98,9 @@ export default function Sidebar() {
                     </ul>
                   )}
 
-                  {/* Flyout lateral cuando colapsado */}
                   {isCollapsed && hoveredMenu === id && (
                     <div
-                      className="bg-dark text-white rounded shadow position-absolute"
+                      className="bg-dark text-white rounded shadow position-absolute flyout-menu flyout-with-arrow show"
                       style={{
                         top: 0,
                         left: "100%",
@@ -135,7 +134,7 @@ export default function Sidebar() {
                     isActiveParent ? "active" : ""
                   }`}
                 >
-                  <Icon />
+                  <Icon size={isCollapsed ? 24 : 18} />
                   {!isCollapsed && <span className="ms-2">{label}</span>}
                 </Link>
               )}

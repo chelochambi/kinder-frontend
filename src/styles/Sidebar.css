@@ -1,0 +1,15 @@
+.flyout-with-arrow {
+  position: relative;
+}
+
+.flyout-with-arrow::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #343a40; /* mismo color que bg-dark */
+}
