@@ -5,12 +5,17 @@ const AuthContext = createContext();
 
 const hardcodedUser = {
   username: "admin",
-  password: "1234"
+  password: "1234",
+  roles: ["admin", "docente"], // ejemplo de roles
+  sucursales: [
+    { id: "s1", nombre: "Sucursal Centro" },
+    { id: "s2", nombre: "Sucursal Norte" },
+  ],
 };
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // NUEVO
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,12 +23,17 @@ export function AuthProvider({ children }) {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
-    setLoading(false); // Cuando termina de intentar recuperar sesión
+    setLoading(false);
   }, []);
 
   const login = (username, password) => {
     if (username === hardcodedUser.username && password === hardcodedUser.password) {
-      const newUser = { username };
+      // Aquí guardamos toda la info del usuario, incluyendo roles y sucursales
+      const newUser = {
+        username: hardcodedUser.username,
+        roles: hardcodedUser.roles,
+        sucursales: hardcodedUser.sucursales,
+      };
       setUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
       navigate("/");
