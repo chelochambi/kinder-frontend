@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { menuItems } from "../data/menuItems";
-import "../styles/Sidebar.css"; // Asegúrate de importar los estilos
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);

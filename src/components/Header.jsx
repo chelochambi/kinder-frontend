@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { FaUser, FaKey, FaSignOutAlt } from "react-icons/fa";
+import { FaUser, FaKey, FaSignOutAlt, FaSchool } from "react-icons/fa"; // <== agregado
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -21,8 +21,13 @@ export default function Header() {
 
   return (
     <nav className="navbar navbar-expand navbar-light bg-light px-3 shadow-sm">
-      <span className="navbar-brand">Kinder ERP</span>
+      {/* Logo e Identidad */}
+      <div className="d-flex align-items-center gap-2">
+        <img src="/src/assets/logo.png" alt="Logo" style={{ height: 28 }} />
+        <span className="navbar-brand mb-0 h6">Kinder ERP</span>
+      </div>
 
+      {/* Dropdown de usuario */}
       <div className="ms-auto" ref={dropdownRef} style={{ position: "relative" }}>
         <button
           onClick={() => setOpen(!open)}
@@ -51,9 +56,7 @@ export default function Header() {
                 Cambiar contraseña
               </button>
             </li>
-            <li>
-              <hr className="dropdown-divider" />
-            </li>
+            <li><hr className="dropdown-divider" /></li>
             <li>
               <button className="dropdown-item text-danger d-flex align-items-center" onClick={logout}>
                 <FaSignOutAlt className="me-2" />
