@@ -6,11 +6,11 @@ import { menuItems } from "../data/menuItems";
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openMenus, setOpenMenus] = useState([]); // para controlar submenús abiertos
+  const [hoveredMenu, setHoveredMenu] = useState(null); // para flyout
   const location = useLocation();
 
   // Al cargar el componente o cambiar ruta, abrir automáticamente el submenú correspondiente
   useEffect(() => {
-    // Buscar qué menús padres tienen un submenú con la ruta actual
     const menusToOpen = menuItems
       .filter(
         (menu) =>
@@ -22,7 +22,6 @@ export default function Sidebar() {
     setOpenMenus(menusToOpen);
   }, [location.pathname]);
 
-  // Función para abrir/cerrar submenú
   const toggleSubMenu = (id) => {
     setOpenMenus((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -31,14 +30,17 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`bg-dark text-white min-vh-100 d-flex flex-column`}
+      className={`bg-dark text-white min-vh-100 d-flex flex-column position-relative`}
       style={{ width: isCollapsed ? "80px" : "250px", transition: "width 0.3s" }}
     >
       <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
         {!isCollapsed && <h5>Menú</h5>}
         <button
           className="btn btn-outline-light btn-sm"
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => {
+            setIsCollapsed(!isCollapsed);
+            setHoveredMenu(null);
+          }}
           aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
         >
           <FaBars />
@@ -47,22 +49,25 @@ export default function Sidebar() {
 
       <ul className="nav flex-column gap-1 flex-grow-1 px-2">
         {menuItems.map(({ id, label, icon: Icon, path, subMenus }) => {
-          // Detectar si el menú padre está activo (ruta igual o alguna ruta hija coincide)
           const isActiveParent =
             (path && location.pathname === path) ||
             (subMenus && subMenus.some((sm) => sm.path === location.pathname));
-
           const isOpen = openMenus.includes(id);
 
           return (
-            <li key={id} className="nav-item">
+            <li
+              key={id}
+              className="nav-item position-relative"
+              onMouseEnter={() => isCollapsed && setHoveredMenu(id)}
+              onMouseLeave={() => isCollapsed && setHoveredMenu(null)}
+            >
               {subMenus ? (
                 <>
                   <button
-                    className={`btn btn-toggle nav-link text-white d-flex align-items-center justify-content-between w-100 ${
+                    className={`btn nav-link text-white d-flex align-items-center justify-content-between w-100 ${
                       isActiveParent ? "active" : ""
                     }`}
-                    onClick={() => toggleSubMenu(id)}
+                    onClick={() => !isCollapsed && toggleSubMenu(id)}
                     style={{ background: "none", border: "none" }}
                   >
                     <span className="d-flex align-items-center">
@@ -72,8 +77,8 @@ export default function Sidebar() {
                     {!isCollapsed && (isOpen ? <FaChevronUp /> : <FaChevronDown />)}
                   </button>
 
-                  {/* Submenús */}
-                  {isOpen && !isCollapsed && (
+                  {/* Submenús normales si no está colapsado */}
+                  {!isCollapsed && isOpen && (
                     <ul className="nav flex-column ms-4 mt-1">
                       {subMenus.map(({ id: subId, label: subLabel, path: subPath }) => {
                         const isActiveSub = location.pathname === subPath;
@@ -81,7 +86,9 @@ export default function Sidebar() {
                           <li key={subId} className="nav-item">
                             <Link
                               to={subPath}
-                              className={`nav-link text-white ${isActiveSub ? "active" : ""}`}
+                              className={`nav-link text-white ${
+                                isActiveSub ? "active" : ""
+                              }`}
                             >
                               {subLabel}
                             </Link>
@@ -89,6 +96,36 @@ export default function Sidebar() {
                         );
                       })}
                     </ul>
+                  )}
+
+                  {/* Flyout lateral cuando colapsado */}
+                  {isCollapsed && hoveredMenu === id && (
+                    <div
+                      className="bg-dark text-white rounded shadow position-absolute"
+                      style={{
+                        top: 0,
+                        left: "100%",
+                        zIndex: 1000,
+                        minWidth: "180px",
+                        padding: "0.5rem",
+                      }}
+                    >
+                      <strong className="d-block mb-2">{label}</strong>
+                      {subMenus.map(({ id: subId, label: subLabel, path: subPath }) => {
+                        const isActiveSub = location.pathname === subPath;
+                        return (
+                          <Link
+                            key={subId}
+                            to={subPath}
+                            className={`d-block px-2 py-1 text-decoration-none text-white rounded ${
+                              isActiveSub ? "bg-primary" : "hover:bg-secondary"
+                            }`}
+                          >
+                            {subLabel}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   )}
                 </>
               ) : (

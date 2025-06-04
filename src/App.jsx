@@ -7,15 +7,32 @@ import Roles from "./pages/usuarios/Roles";
 import ListaClientes from "./pages/clientes/ListaClientes";
 import PagoMensualidades from "./pages/clientes/PagoMensualidades";
 import ListaSucursales from "./pages/sucurales/ListaSucursales";
-
 import Login from "./pages/Login";
+
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
+
+// 🚀 Toastify
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        {/* Contenedor de notificaciones */}
+        <ToastContainer 
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          theme="colored"
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover          
+        />
+
         <Routes>
           {/* Ruta pública */}
           <Route path="/login" element={<Login />} />
