@@ -34,7 +34,7 @@ export default function Login() {
       toast.success("Bienvenido " + usuario.nombres);
 
       // Redirigir a dashboard o página principal
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       toast.error("Credenciales incorrectas");
     } finally {
