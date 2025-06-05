@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../auth/AuthContext";
 import { FaUser, FaKey, FaSignOutAlt, FaSchool } from "react-icons/fa"; // <== agregado
 
 export default function Header() {

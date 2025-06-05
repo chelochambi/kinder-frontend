@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../auth/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import logo from '/src/assets/logo.png';
+import { login as loginService } from "../services/authService"; 
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,15 +24,22 @@ export default function Login() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      const ok = login(username, password);
+    try {
+      // Llamada real al backend
+      const { token, usuario } = await loginService(username, password);
+
+      // Guardar token y usuario en contexto global
+      login(token, usuario);
+
+      toast.success("Bienvenido " + usuario.nombres);
+
+      // Redirigir a dashboard o página principal
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Credenciales incorrectas");
+    } finally {
       setLoading(false);
-      if (!ok) {
-        toast.error("Credenciales incorrectas");
-      } else {
-        toast.success("Bienvenido");
-      }
-    }, 1000);
+    }
   };
 
   const inputClass = (field) =>
@@ -46,7 +58,7 @@ export default function Login() {
         {/* Logo */}
         <div className="text-center mb-4">
           <img
-            src="/logo192.png"
+            src={logo}
             alt="Logo"
             style={{ width: "60px", marginBottom: "10px" }}
           />
