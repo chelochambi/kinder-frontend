@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import {
+  FaBars,
+  FaChevronDown,
+  FaChevronUp,
+  FaHome,
+  FaLock,
+  FaBuilding,
+  FaUsers,
+  FaUser,
+  FaUserTag,
+  FaKey,
+  FaList,
+} from "react-icons/fa";
 import { buildMenuTree } from "../utils/buildMenuTree";
 
 export default function Sidebar() {
@@ -8,6 +20,18 @@ export default function Sidebar() {
   const [openMenus, setOpenMenus] = useState([]);
   const [menus, setMenus] = useState([]);
   const location = useLocation();
+
+  // Mapa de nombres a componentes de íconos
+  const iconMap = {
+    FaHome: FaHome,
+    FaLock: FaLock,
+    FaBuilding: FaBuilding,
+    FaUsers: FaUsers,
+    FaUser: FaUser,
+    FaUserTag: FaUserTag,
+    FaKey: FaKey,
+    FaList: FaList, // ícono por defecto
+  };
 
   useEffect(() => {
     const rawMenus = JSON.parse(localStorage.getItem("menus") || "[]");
@@ -28,19 +52,20 @@ export default function Sidebar() {
           const isOpen = openMenus.includes(item.id);
           const isActive = location.pathname === item.ruta;
 
+          // Obtener componente del ícono
+          const IconComponent = iconMap[item.icono] || FaList;
+
           return (
             <li key={item.id} className="nav-item">
               {item.children.length > 0 ? (
                 <>
                   <button
-                    className={`btn nav-link text-white d-flex justify-content-between align-items-center w-100 ${
-                      isActive ? "active" : ""
-                    }`}
+                    className={`btn nav-link text-white d-flex justify-content-between align-items-center w-100 ${isActive ? "active" : ""}`}
                     onClick={() => toggleSubMenu(item.id)}
                     style={{ background: "none", border: "none" }}
                   >
                     <span className="d-flex align-items-center gap-2">
-                      <i className={item.icono}></i>
+                      <IconComponent className="me-2" />
                       {!isCollapsed && item.nombre}
                     </span>
                     {!isCollapsed &&
@@ -51,11 +76,9 @@ export default function Sidebar() {
               ) : (
                 <Link
                   to={item.ruta}
-                  className={`nav-link text-white d-flex align-items-center ${
-                    isActive ? "active" : ""
-                  }`}
+                  className={`nav-link text-white d-flex align-items-center ${isActive ? "active" : ""}`}
                 >
-                  <i className={`${item.icono} me-2`}></i>
+                  <IconComponent className="me-2" />
                   {!isCollapsed && item.nombre}
                 </Link>
               )}

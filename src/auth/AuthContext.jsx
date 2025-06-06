@@ -1,3 +1,4 @@
+// src/context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
@@ -5,34 +6,59 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);  // <---- Estado para controlar carga
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const savedToken = localStorage.getItem("token");
-  const savedUsuario = localStorage.getItem("usuario");
+    const savedToken = localStorage.getItem("token");
+    const savedUsuario = localStorage.getItem("usuario");
+    const savedMenus = localStorage.getItem("menus");
 
-  if (savedToken && savedUsuario) {
-    try {
-      setToken(savedToken);
-      setUsuario(JSON.parse(savedUsuario));
-      console.log("Usuario y token restaurados correctamente");
-    } catch (error) {
-      console.error("Error parseando usuario desde localStorage", error);
-      setToken(null);
-      setUsuario(null);
+    if (savedToken && savedUsuario && savedMenus) {
+      try {
+        setToken(savedToken);
+        setUsuario(JSON.parse(savedUsuario));
+      } catch (error) {
+        console.error("Error parseando datos del localStorage", error);
+        logout();
+      }
     }
-  } else {
-    console.log("No se encontraron token o usuario en localStorage");
-  }
-  setLoading(false);
-}, []);
-
+    setLoading(false);
+  }, []);
 
   const login = (token, usuario) => {
     setToken(token);
     setUsuario(usuario);
+
+    // Filtrar menús que sean tipo sidebar
+    const sidebarMenus = [];
+
+    const extractSidebarMenus = (menus) => {
+      menus.forEach((menu) => {
+        if (menu.tipo === "sidebar" && menu.mostrar !== false) {
+          sidebarMenus.push({
+            ...menu,
+            padre_id: menu.padre_id ?? null,
+          });
+
+          if (menu.submenus && Array.isArray(menu.submenus)) {
+            menu.submenus.forEach((submenu) => {
+              if (submenu.tipo === "sidebar" && submenu.mostrar !== false) {
+                sidebarMenus.push({
+                  ...submenu,
+                  padre_id: menu.id,
+                });
+              }
+            });
+          }
+        }
+      });
+    };
+
+    extractSidebarMenus(usuario.menus);
+
     localStorage.setItem("token", token);
     localStorage.setItem("usuario", JSON.stringify(usuario));
+    localStorage.setItem("menus", JSON.stringify(sidebarMenus));
   };
 
   const logout = () => {
@@ -40,6 +66,7 @@ export function AuthProvider({ children }) {
     setUsuario(null);
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
+    localStorage.removeItem("menus");
   };
 
   return (
