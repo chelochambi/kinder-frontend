@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  FaBars,
-  FaChevronDown,
-  FaChevronUp,
-  FaHome,
-  FaLock,
-  FaBuilding,
-  FaUsers,
-  FaUser,
-  FaUserTag,
-  FaKey,
-  FaList,
-} from "react-icons/fa";
+import * as FaIcons from "react-icons/fa";
+import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { buildMenuTree } from "../utils/buildMenuTree";
 
 export default function Sidebar() {
@@ -20,18 +9,6 @@ export default function Sidebar() {
   const [openMenus, setOpenMenus] = useState([]);
   const [menus, setMenus] = useState([]);
   const location = useLocation();
-
-  // Mapa de nombres a componentes de íconos
-  const iconMap = {
-    FaHome: FaHome,
-    FaLock: FaLock,
-    FaBuilding: FaBuilding,
-    FaUsers: FaUsers,
-    FaUser: FaUser,
-    FaUserTag: FaUserTag,
-    FaKey: FaKey,
-    FaList: FaList, // ícono por defecto
-  };
 
   useEffect(() => {
     const rawMenus = JSON.parse(localStorage.getItem("menus") || "[]");
@@ -52,8 +29,8 @@ export default function Sidebar() {
           const isOpen = openMenus.includes(item.id);
           const isActive = location.pathname === item.ruta;
 
-          // Obtener componente del ícono
-          const IconComponent = iconMap[item.icono] || FaList;
+          // ✅ Obtener ícono dinámicamente
+          const IconComponent = FaIcons[item.icono] || FaIcons.FaList;
 
           return (
             <li key={item.id} className="nav-item">
