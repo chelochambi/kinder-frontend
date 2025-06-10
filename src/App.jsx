@@ -47,8 +47,9 @@ function App() {
                 <MainLayout>
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
-                    <Route path="/usuarios" element={<ListaUsuario />} />
-                    <Route path="/usuarios/Roles" element={<Roles />} />
+                    <Route path="/seguridad/usuarios" element={<ListaUsuario />} />
+                    <Route path="/seguridad/Roles" element={<Roles />} />
+                    <Route path="/seguridad/Permisos" element={<Roles />} />
                     <Route path="/sucursales" element={<ListaSucursales />} />
                     <Route path="/clientes" element={<ListaClientes />} />
                     <Route path="/clientes/pagos" element={<PagoMensualidades />} />
