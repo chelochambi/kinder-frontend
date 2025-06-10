@@ -6,27 +6,41 @@ export default function UsuarioList() {
   const [usuarios, setUsuarios] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [limit] = useState(5); // filas por página
+  const [limit] = useState(5);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const totalPages = Math.ceil(total / limit);
 
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const data = await fetchUsuarios();
-        setUsuarios(data);         // data es un array
-        setTotal(data.length);     // total usuarios es la longitud del array
-      } catch (error) {
-        console.error(error);
-        setUsuarios([]);
-        setTotal(0);
-      }
-      setLoading(false);
+  async function loadData() {
+    setLoading(true);
+    try {
+      const data = await fetchUsuarios();
+
+      // Filtrar por búsqueda
+      const filtered = data.filter(u =>
+        u.username.toLowerCase().includes(search.toLowerCase()) ||
+        `${u.nombres} ${u.primer_apellido} ${u.segundo_apellido}`.toLowerCase().includes(search.toLowerCase())
+      );
+
+      setTotal(filtered.length);
+
+      // Aplicar paginación
+      const start = (page - 1) * limit;
+      const paginated = filtered.slice(start, start + limit);
+
+      setUsuarios(paginated);
+    } catch (error) {
+      console.error(error);
+      setUsuarios([]);
+      setTotal(0);
     }
-    loadData();
-  }, []);
+    setLoading(false);
+  }
+
+  loadData();
+}, [page, limit, search]);
+
 
   // Función para manejar la modificación del usuario
   function handleModificar(usuario) {
@@ -72,7 +86,7 @@ export default function UsuarioList() {
                 <th>Nombre Completo</th>
                 <th>Teléfono</th>
                 <th>Estado</th>
-                <th>Acciones</th> {/* Nueva columna para botones */}
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
