@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "/src/auth/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from '/src/assets/logo.png';
-import { login as loginService } from "../services/authService"; 
+import { login as loginService } from "/src/services/authService"; 
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {

@@ -1,68 +1,82 @@
+// src/App.jsx
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import MainLayout from "./layout/MainLayout";
-import Dashboard from "./pages/Dashboard";
-import NotFound from "./pages/NotFound";
-import ListaUsuario from "./pages/usuarios/ListaUsuario";
-import Roles from "./pages/usuarios/Roles";
-import ListaClientes from "./pages/clientes/ListaClientes";
-import PagoMensualidades from "./pages/clientes/PagoMensualidades";
-import ListaSucursales from "./pages/sucurales/ListaSucursales";
-import Login from "./pages/Login";
-
-import { AuthProvider } from "./auth/AuthContext";
+import { useAuth, AuthProvider } from "./auth/AuthContext";
 import PrivateRoute from "./auth/PrivateRoute";
 
+import MainLayout from "./layout/MainLayout";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
 
-// 🚀 Toastify
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Mapea las rutas de menú con los componentes correspondientes
+import { routeComponentMap } from "./routes/routeConfig";
+
 function App() {
+  const { usuario } = useAuth();
+
+  // Carga los menús del localStorage (puedes ajustarlo para que venga de contexto si quieres)
+  const menus = JSON.parse(localStorage.getItem("menus") || "[]");
+
+  return (
+    <>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        theme="colored"
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
+      <Routes>
+        {/* Ruta pública */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Rutas protegidas */}
+        <Route
+          path="/*"
+          element={
+            <PrivateRoute>
+              <MainLayout>
+                <Routes>
+                  {menus.map((menu) => {
+                    const Componente = routeComponentMap[menu.ruta];
+                    return (
+                      Componente && (
+                        <Route
+                          key={menu.ruta}
+                          path={menu.ruta.replace(/^\//, "")} // Quita la barra inicial para que React Router funcione bien
+                          element={<Componente />}
+                        />
+                      )
+                    );
+                  })}
+                  {/* Ruta fallback */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </MainLayout>
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </>
+  );
+}
+
+// Envolvemos el App con AuthProvider y BrowserRouter para que useAuth funcione
+export default function AppWrapper() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        {/* Contenedor de notificaciones */}
-        <ToastContainer 
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          theme="colored"
-          closeOnClick
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover          
-        />
-
-        <Routes>
-          {/* Ruta pública */}
-          <Route path="/login" element={<Login />} />
-
-          {/* Rutas protegidas */}
-          <Route 
-            path="/*" 
-            element={
-              <PrivateRoute>
-                <MainLayout>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/seguridad/usuarios" element={<ListaUsuario />} />
-                    <Route path="/seguridad/Roles" element={<Roles />} />
-                    <Route path="/seguridad/Permisos" element={<Roles />} />
-                    <Route path="/sucursales" element={<ListaSucursales />} />
-                    <Route path="/clientes" element={<ListaClientes />} />
-                    <Route path="/clientes/pagos" element={<PagoMensualidades />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </MainLayout>
-              </PrivateRoute>
-            } 
-          />
-        </Routes>
+        <App />
       </AuthProvider>
     </BrowserRouter>
   );
 }
-
-export default App;

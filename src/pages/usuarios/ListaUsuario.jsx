@@ -1,5 +1,5 @@
 import React from 'react';
-import UsuarioList from '../../components/UsuarioList';
+import UsuarioList from '/src/components/seguridad/UsuarioList';
 
 export default function ListaUsuario() {
   return (

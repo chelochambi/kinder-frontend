@@ -1,7 +1,7 @@
 // src/components/UserDropdown.jsx
 import { useState, useRef, useEffect } from "react";
 import { FaUser, FaKey, FaSignOutAlt } from "react-icons/fa";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "/src/auth/AuthContext";
 
 export default function UserDropdown() {
   const { usuario, logout } = useAuth();

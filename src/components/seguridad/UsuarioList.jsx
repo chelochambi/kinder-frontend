@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { fetchUsuarios } from '../services/usuarioService';
-import { usePermisosPagina } from '../hooks/usePermisosPagina';
+import { fetchUsuarios } from '/src/services/usuarioService';
+import { usePermisosPagina } from '/src/hooks/usePermisosPagina';
 import {
   Container,
   Row,

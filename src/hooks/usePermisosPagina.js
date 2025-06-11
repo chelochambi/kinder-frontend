@@ -1,5 +1,5 @@
 // src/hooks/usePermisosPagina.js
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "/src/auth/AuthContext";
 
 export function usePermisosPagina(ruta) {
   const { usuario } = useAuth();

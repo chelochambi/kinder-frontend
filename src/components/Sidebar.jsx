@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import * as FaIcons from "react-icons/fa";
 import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { buildMenuTree } from "../utils/buildMenuTree";
+import { buildMenuTree } from "/src/utils/buildMenuTree";
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
