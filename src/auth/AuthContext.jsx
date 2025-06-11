@@ -3,33 +3,76 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
+// Función para decodificar el token (base64url decoding simple)
+function decodeToken(token) {
+  try {
+    const payload = token.split('.')[1];
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Verificación al montar: controla que el token no esté vencido en el arranque
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUsuario = localStorage.getItem("usuario");
     const savedMenus = localStorage.getItem("menus");
 
     if (savedToken && savedUsuario && savedMenus) {
-      try {
-        setToken(savedToken);
-        setUsuario(JSON.parse(savedUsuario));
-      } catch (error) {
-        console.error("Error parseando datos del localStorage", error);
+      const decoded = decodeToken(savedToken);
+      const currentTime = Date.now() / 1000;
+
+      if (!decoded || decoded.exp < currentTime) {
+        console.warn("Token expirado o inválido");
         logout();
+      } else {
+        try {
+          setToken(savedToken);
+          setUsuario(JSON.parse(savedUsuario));
+        } catch (error) {
+          console.error("Error parseando datos del localStorage", error);
+          logout();
+        }
       }
     }
+
     setLoading(false);
   }, []);
+
+  // ✅ Nuevo: verificación periódica del token (cada 15 segundos)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (token) {
+        const decoded = decodeToken(token);
+        const now = Date.now() / 1000;
+
+        if (!decoded || decoded.exp < now) {
+          console.warn("Token expirado (verificado en segundo plano)");
+          logout();
+        }
+      }
+    }, 15000); // cada 15 segundos
+
+    return () => clearInterval(interval); // Limpieza del intervalo
+  }, [token]);
 
   const login = (token, usuario) => {
     setToken(token);
     setUsuario(usuario);
 
-    // Filtrar menús que sean tipo sidebar
     const sidebarMenus = [];
 
     const extractSidebarMenus = (menus) => {
