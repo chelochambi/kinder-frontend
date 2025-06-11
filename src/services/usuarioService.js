@@ -1,4 +1,4 @@
-// usuarioService.js
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";// usuarioService.js
 
 function getToken() {
   return localStorage.getItem('token'); // o donde guardes el token
@@ -12,7 +12,7 @@ export async function fetchUsuarios() {
   }
 
   try {
-    const response = await fetch('http://localhost:8080/api/usuarios', {
+    const response = await fetch(`${API_URL}/api/usuarios`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
