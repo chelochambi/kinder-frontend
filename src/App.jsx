@@ -6,15 +6,13 @@ import PrivateRoute from "./auth/PrivateRoute";
 import MainLayout from "./layout/MainLayout";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function App() {
-  const { usuario } = useAuth();
-  const menus = JSON.parse(localStorage.getItem("menus") || "[]");
+function AppRoutes() {
+  const { usuario, loading } = useAuth();
+  if (loading) return <div className="pantalla-cargando">Cargando sesión...</div>;
 
-  // Función recursiva para construir rutas
   const renderDynamicRoutes = (menus) => {
     const routes = [];
 
@@ -42,37 +40,33 @@ function App() {
           }
         }
 
-        // Recurse si hay submenús
         if (menu.submenus) {
           addRoutes(menu.submenus);
         }
       });
     };
 
-    addRoutes(menus);
+    addRoutes(usuario?.menus || []);
     return routes;
   };
 
   return (
-    <>
-      <ToastContainer position="bottom-right" autoClose={3000} theme="colored" />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/*"
-          element={
-            <PrivateRoute>
-              <MainLayout>
-                <Routes>
-                  {renderDynamicRoutes(usuario?.menus || [])}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </MainLayout>
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/*"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <Routes>
+                {renderDynamicRoutes(usuario?.menus || [])}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
   );
 }
 
@@ -80,7 +74,8 @@ export default function AppWrapper() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <ToastContainer position="bottom-right" autoClose={3000} theme="colored" />
+        <AppRoutes />
       </AuthProvider>
     </BrowserRouter>
   );

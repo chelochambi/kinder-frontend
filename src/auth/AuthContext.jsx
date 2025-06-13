@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function fetchUsuario() {
       try {
-        const resp = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+        const resp = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
           credentials: "include",
         });
         if (resp.ok) {
