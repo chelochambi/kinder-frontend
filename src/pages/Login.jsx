@@ -26,17 +26,17 @@ export default function Login() {
     setLoading(true);
     try {
       // Llamada real al backend
-      const { token, usuario } = await loginService(username, password);
+      const usuario = await loginService(username, password);
 
       // Guardar token y usuario en contexto global
-      login(token, usuario);
+      login(usuario);
 
       toast.success("Bienvenido " + usuario.nombres);
 
       // Redirigir a dashboard o página principal
       navigate("/");
     } catch (error) {
-      toast.error("Credenciales incorrectas");
+      toast.error("Credenciales incorrectas CODE:0001");
     } finally {
       setLoading(false);
     }

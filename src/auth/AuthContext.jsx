@@ -1,78 +1,39 @@
-// src/context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
-// Función para decodificar el token (base64url decoding simple)
-function decodeToken(token) {
-  try {
-    const payload = token.split('.')[1];
-    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    return null;
-  }
-}
-
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
-  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Verificación al montar: controla que el token no esté vencido en el arranque
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    const savedUsuario = localStorage.getItem("usuario");
-    const savedMenus = localStorage.getItem("menus");
-
-    if (savedToken && savedUsuario && savedMenus) {
-      const decoded = decodeToken(savedToken);
-      const currentTime = Date.now() / 1000;
-
-      if (!decoded || decoded.exp < currentTime) {
-        console.warn("Token expirado o inválido");
-        logout();
-      } else {
-        try {
-          setToken(savedToken);
-          setUsuario(JSON.parse(savedUsuario));
-        } catch (error) {
-          console.error("Error parseando datos del localStorage", error);
-          logout();
+    async function fetchUsuario() {
+      try {
+        const resp = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+          credentials: "include",
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          setUsuario(data.usuario);
+          localStorage.setItem("usuario", JSON.stringify(data.usuario));
+          // Procesar menus igual que antes si querés
+        } else {
+          setUsuario(null);
+          localStorage.removeItem("usuario");
         }
+      } catch (error) {
+        setUsuario(null);
+        localStorage.removeItem("usuario");
       }
+      setLoading(false);
     }
-
-    setLoading(false);
+    fetchUsuario();
   }, []);
 
-  // ✅ Nuevo: verificación periódica del token (cada 15 segundos)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (token) {
-        const decoded = decodeToken(token);
-        const now = Date.now() / 1000;
-
-        if (!decoded || decoded.exp < now) {
-          console.warn("Token expirado (verificado en segundo plano)");
-          logout();
-        }
-      }
-    }, 15000); // cada 15 segundos
-
-    return () => clearInterval(interval); // Limpieza del intervalo
-  }, [token]);
-
-  const login = (token, usuario) => {
-    setToken(token);
+  const login = (usuario) => {
     setUsuario(usuario);
 
+    // Aquí puedes seguir procesando menus para guardarlos en localStorage
     const sidebarMenus = [];
 
     const extractSidebarMenus = (menus) => {
@@ -99,21 +60,24 @@ export function AuthProvider({ children }) {
 
     extractSidebarMenus(usuario.menus);
 
-    localStorage.setItem("token", token);
     localStorage.setItem("usuario", JSON.stringify(usuario));
     localStorage.setItem("menus", JSON.stringify(sidebarMenus));
   };
 
-  const logout = () => {
-    setToken(null);
+  const logout = async () => {
+    // Opcional: llamar a backend para invalidar sesión
+    await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
     setUsuario(null);
-    localStorage.removeItem("token");
     localStorage.removeItem("usuario");
     localStorage.removeItem("menus");
   };
 
   return (
-    <AuthContext.Provider value={{ usuario, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ usuario, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
